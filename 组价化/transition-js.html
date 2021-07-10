@@ -1,0 +1,77 @@
+<head>
+<style>
+.box {
+  width: 100px;
+  height: 100px;
+  background-color: red;
+}
+
+.enter-active, .leave-active {
+  transition: transform 1s ease-in-out;
+}
+.enter-from, .leave-to {
+  transform: translateX(200px);
+}
+.enter-to, .leave-from {
+  transform: translateX(0);
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+</div>
+
+<script>
+
+const container = document.querySelector('#app')
+
+const el = document.createElement('div')
+el.classList.add('box')
+
+// before enter
+el.classList.add('enter-from')
+el.classList.add('enter-active')
+
+container.appendChild(el)
+// enter
+nextFrame(() => {
+  el.classList.remove('enter-from')
+  el.classList.add('enter-to')
+
+  el.addEventListener('transitionend', () => {
+    el.classList.remove('enter-to')
+    el.classList.remove('enter-active')
+  })
+})
+
+
+function nextFrame(cb) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(cb)
+  })
+}
+
+el.addEventListener('click', () => {
+  const performRemove = () => el.parentNode.removeChild(el)
+  el.classList.add('leave-from')
+  el.classList.add('leave-active')
+
+  // document.body.offsetHeight
+
+  nextFrame(() => {
+    el.classList.remove('leave-from')
+    el.classList.add('leave-to')
+
+    el.addEventListener('transitionend', () => {
+      el.classList.remove('leave-to')
+      el.classList.remove('leave-active')
+
+      performRemove()
+    })
+  })
+})
+
+</script>
+</body>

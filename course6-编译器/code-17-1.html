@@ -1,0 +1,72 @@
+<body>
+  <script>
+
+  function createVNode(tag, props, children, flags) {
+    const key = props && props.key
+    props && delete props.key
+
+    const vnode = {
+      tag,
+      props,
+      children,
+      key,
+      patchFlags
+    }
+
+    if (typeof flags !== 'undefined' && currentDynamicChildren) {
+      // 动态节点
+      currentDynamicChildren.push(vnode)
+    }
+
+    return vnode
+  }
+
+  // 动态节点栈
+  const dynamicChildrenStack = []
+  // 当前动态节点集合
+  let currentDynamicChildren = null
+  // openBlock 用来创建一个新的动态节点集合，并将该集合压入栈中
+  function openBlock() {
+    dynamicChildrenStack.push((currentDynamicChildren = []))
+  }
+  // closeBlock 用来将通过 openBlock 创建的动弹节点集合从栈中弹出
+  function closeBlock() {
+    currentDynamicChildren = dynamicChildrenStack.pop()
+  }
+
+  function createBlock(tag, props, children) {
+    const block = createVNode(tag, props, children)
+    block.dynamicChildren = currentDynamicChildren
+
+    closeBlock()
+
+    return block
+  }
+
+
+  const block = (openBlock(), createBlock('div', null, [
+    createVNode('p', { class: 'foo' }, null, 1),
+    createVNode('p', { class: 'bar' }, null),
+  ]))
+
+  console.log(block)
+
+
+
+
+  // render() {
+  //   return createVNode('div', {}, [
+  //     createVNode('div', {}, [
+  //       createVNode('div', {}, [
+  //         createVNode('div', {}, [
+  //           createVNode('div', {}, [
+  //             // ...
+  //           ])
+  //         ])
+  //       ])
+  //     ])
+  //   ])
+  // }
+
+  </script>
+</body>

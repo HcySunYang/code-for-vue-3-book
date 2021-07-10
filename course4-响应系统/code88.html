@@ -1,0 +1,107 @@
+<body></body>
+<script>
+
+
+// 存储副作用函数的桶
+const bucket = new WeakMap()
+
+// 原始数据
+const data = { foo: 1 }
+// 对原始数据的代理
+const obj = new Proxy(data, {
+  // 拦截读取操作
+  get(target, key) {
+    // 将副作用函数 activeEffect 添加到存储副作用函数的桶中
+    track(target, key)
+    // 返回属性值
+    return target[key]
+  },
+  // 拦截设置操作
+  set(target, key, newVal) {
+    const oldValue = target[key]
+    // 设置属性值
+    target[key] = newVal
+    // 把副作用函数从桶里取出并执行
+    trigger(target, key, newVal, oldValue)
+  }
+})
+
+function track(target, key) {
+  if (!activeEffect) return
+
+  let depsMap = bucket.get(target)
+  if (!depsMap) {
+    bucket.set(target, (depsMap = new Map()))
+  }
+  let deps = depsMap.get(key)
+  if (!deps) {
+    depsMap.set(key, (deps = new Set()))
+  }
+  deps.add(activeEffect)
+  activeEffect.deps.push(deps)
+
+  // 根据当前激活的副作用函数 options 选项，调用其 onTrack 钩子函数来记录快照信息
+	if (activeEffect.options.onTrack) {
+    activeEffect.options.onTrack({
+      // 记录触发追踪的副作用函数
+      effect: activeEffect,
+      // 记录目标对象
+      target,
+      // 记录目标对象的 key
+      key
+    })
+  }
+}
+
+function trigger(target, key, newValue, oldValue) {
+  const depsMap = bucket.get(target)
+  if (!depsMap) return
+  const effects = depsMap.get(key)
+  effects && effects.forEach(fn => {
+    if (fn !== activeEffect) {
+      fn()
+
+      // 根据副作用函数 options 选项，调用其 onTrigger 钩子函数来记录快照信息
+      if (fn.options.onTrigger) {
+        fn.options.onTrigger({
+          // 记录触发追踪的副作用函数
+          effect: activeEffect,
+          // 记录目标对象
+          target,
+          // 记录目标对象的 key
+          key,
+          // 新值和旧值
+          newValue,
+          oldValue
+        })
+      }
+    }
+  })
+}
+
+// 用一个全局变量存储当前激活的 effect 函数
+let activeEffect
+function effect(fn, options = {}) {
+  // 当调用 effect 注册副作用函数时，将副作用函数复制给 activeEffect
+  activeEffect = () => {
+    // cleanup
+    fn.deps.forEach(dep => dep.delete(fn))
+    fn()
+  }
+  // 将 options 挂载到 fn.options 下
+  activeEffect.options = options
+  activeEffect.deps = []
+  // 执行副作用函数
+  activeEffect()
+  // 重置 activeEffect
+  activeEffect = null
+}
+
+effect(() => obj.foo++)
+
+console.log(obj.foo)
+obj.foo++
+console.log(obj.foo)
+
+
+</script>

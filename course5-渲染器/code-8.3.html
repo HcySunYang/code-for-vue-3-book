@@ -1,0 +1,106 @@
+<div id="app"></div>
+
+<div data-a="3" mmm="asdf" draggable="true"></div>
+
+<form id="aaa"></form>
+<input value="aaa" form="aaa" />
+
+<script src="https://unpkg.com/@vue/reactivity@3.0.5/dist/reactivity.global.js"></script>
+<script>
+
+function shouldSetAsProps(el, key, value) {
+  if (key === 'form' && el.tagName === 'INPUT') return false
+  return key in el
+}
+
+function createRenderer(options) {
+
+  const {
+    createElement,
+    insert,
+    setElementText,
+    patchProps
+  } = options
+
+  function mountElement(vnode, container) {
+    const el = createElement(vnode.type)
+    if (typeof vnode.children === 'string') {
+      setElementText(el, vnode.children)
+    } else if (Array.isArray(vnode.children)) {
+      vnode.children.forEach(child => {
+        patch(null, child, el)
+      })
+    }
+
+    if (vnode.props) {
+      for (const key in vnode.props) {
+        patchProps(el, key, null, vnode.props[key])
+      }
+    }
+
+    insert(el, container)
+  }
+
+  function patch(n1, n2, container) {
+    if (!n1) {
+      mountElement(n2, container)
+    } else {
+      //
+    }
+  }
+
+  function render(vnode, container) {
+		if (vnode) {
+      // 新 vnode 存在，将其与旧 vnode 一起传递给 patch 函数进行打补丁
+      patch(container._vnode, vnode, container)
+    } else {
+      if (container._vnode) {
+        // 旧 vnode 存在，且新 vnode 不存在，说明是卸载(unmount)操作
+        // 只需要将 container 内的 DOM 清空即可
+        container.innerHTML = ''
+      }
+    }
+    // 把 vnode 存储到 container._vnode 下，即后续渲染中的旧 vnode
+    container._vnode = vnode
+  }
+  
+  return {
+    render
+  }
+}
+
+const renderer = createRenderer({
+  createElement(tag) {
+    return document.createElement(tag)
+  },
+  setElementText(el, text) {
+    el.textContent = text
+  },
+  insert(el, parent, anchor = null) {
+    parent.insertBefore(el, anchor)
+  },
+  patchProps(el, key, preValue, nextValue) {
+    if (shouldSetAsProps(el, key, nextValue)) {
+      const type = typeof el[key]
+      if (type === 'boolean' && nextValue === '') {
+        el[key] = true
+      } else {
+        el[key] = nextValue
+      }
+    } else {
+      el.setAttribute(key, nextValue)
+    }
+  }
+})
+
+const vnode = {
+  type: 'button',
+  props: {
+    disabled: ''
+  },
+  children: 'Button'
+}
+renderer.render(vnode, document.querySelector('#app'))
+
+
+</script>
