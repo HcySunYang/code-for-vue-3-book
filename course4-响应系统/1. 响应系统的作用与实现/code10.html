@@ -22,6 +22,7 @@ const obj = new Proxy(data, {
     target[key] = newVal
     // 把副作用函数从桶里取出并执行
     trigger(target, key)
+    return true
   }
 })
 
