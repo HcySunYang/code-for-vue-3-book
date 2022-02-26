@@ -79,7 +79,7 @@ function createRenderer(options) {
         newEndVNode = newChildren[--newEndIdx]
       } else if (oldStartVNode.key === newEndVNode.key) {
         patch(oldStartVNode, newEndVNode, container)
-        insert(oldStartVNode.el, container, newEndVNode.el.nextSibling)
+        insert(oldStartVNode.el, container, oldEndVNode.el.nextSibling)
 
         oldStartVNode = oldChildren[++oldStartIdx]
         newEndVNode = newChildren[--newEndIdx]
