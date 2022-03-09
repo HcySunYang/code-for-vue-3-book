@@ -26,6 +26,8 @@ const obj = new Proxy(data, {
 })
 
 function track(target, key) {
+  // 没有 activeEffect，直接 return
+  if (!activeEffect) return
   let depsMap = bucket.get(target)
   if (!depsMap) {
     bucket.set(target, (depsMap = new Map()))
@@ -51,6 +53,8 @@ function effect(fn) {
   activeEffect = fn
   // 执行副作用函数
   fn()
+  // 避免对最后一个副作用函数重复收集
+  activeEffect = null
 }
 
 effect(() => {
