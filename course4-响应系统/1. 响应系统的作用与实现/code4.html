@@ -11,6 +11,8 @@ const data = { text: 'hello world' }
 const obj = new Proxy(data, {
   // 拦截读取操作
   get(target, key) {
+    // 没有 activeEffect，直接 return target[key]
+    if (!activeEffect) return target[key]
     // 将副作用函数 activeEffect 添加到存储副作用函数的桶中
     let depsMap = bucket.get(target)
     if (!depsMap) {
@@ -45,6 +47,8 @@ function effect(fn) {
   activeEffect = fn
   // 执行副作用函数
   fn()
+  // 避免对最后一个副作用函数重复收集
+  activeEffect = null
 }
 
 effect(() => {
