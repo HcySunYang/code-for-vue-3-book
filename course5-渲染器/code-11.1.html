@@ -163,7 +163,7 @@ function createRenderer(options) {
               : null
             // 挂载
             patch(null, newVNode, container, anchor)
-          } else if (i !== seq[j]) {
+          } else if (i !== seq[s]) {
             // 说明该节点需要移动
             // 该节点在新的一组子节点中的真实位置索引
             const pos = i + newStart
@@ -177,7 +177,7 @@ function createRenderer(options) {
             // 移动
             insert(newVNode.el, container, anchor)
           } else {
-            // 当 i === seq[j] 时，说明该位置的节点不需要移动
+            // 当 i === seq[s] 时，说明该位置的节点不需要移动
             // 并让 s 指向下一个位置
             s--
           }
