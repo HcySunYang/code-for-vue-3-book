@@ -1,16 +1,14 @@
 <body></body>
 <script>
-const obj1 = {}
-const obj2 = {}
+const map = new Map();
+const weakMap = new WeakMap();
+(function() {
+    const foo = {foo: 1};
+    const bar = {bar: 2};
 
-const map1 = new WeakMap()
-map1.set(obj1, 1)
+    map.set(foo, 1);
+    weakMap.set(bar, 2);
+})()
 
-const map2 = new Map()
-map2.set(obj2, 2)
-
-obj1 = null
-obj2 = null
-
-map1.get()
+console.log(map, weakMap)
 </script>
