@@ -361,7 +361,7 @@ function createRenderer(options) {
       isFlushing = true
       p.then(() => {
         try {
-          queue.forEach(jon => job())
+          queue.forEach(job => job())
         } finally {
           isFlushing = false
         }
