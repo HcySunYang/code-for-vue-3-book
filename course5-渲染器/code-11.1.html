@@ -144,26 +144,26 @@ function createRenderer(options) {
         }
       }
 
-      if (moved) {
-        const seq = lis(source)
-        // s 指向最长递增子序列的最后一个值
-        let s = seq.length - 1
-        let i = count - 1
-        for (i; i >= 0; i--) {
-          if (source[i] === -1) {
-            // 说明索引为 i 的节点是全新的节点，应该将其挂载
-            // 该节点在新 children 中的真实位置索引
-            const pos = i + newStart
-            const newVNode = newChildren[pos]
-            // 该节点下一个节点的位置索引
-            const nextPos = pos + 1
-            // 锚点
-            const anchor = nextPos < newChildren.length
-              ? newChildren[nextPos].el
-              : null
-            // 挂载
-            patch(null, newVNode, container, anchor)
-          } else if (i !== seq[j]) {
+      const seq = lis(source)
+      // s 指向最长递增子序列的最后一个值
+      let s = seq.length - 1
+      let i = count - 1
+      for (i; i >= 0; i--) {
+        if (source[i] === -1) {
+          // 说明索引为 i 的节点是全新的节点，应该将其挂载
+          // 该节点在新 children 中的真实位置索引
+          const pos = i + newStart
+          const newVNode = newChildren[pos]
+          // 该节点下一个节点的位置索引
+          const nextPos = pos + 1
+          // 锚点
+          const anchor = nextPos < newChildren.length
+            ? newChildren[nextPos].el
+            : null
+          // 挂载
+          patch(null, newVNode, container, anchor)
+        } else if (moved) {
+          if (i !== seq[j]) {
             // 说明该节点需要移动
             // 该节点在新的一组子节点中的真实位置索引
             const pos = i + newStart
@@ -184,7 +184,6 @@ function createRenderer(options) {
         }
       }
     }
-
   }
 
   function patchElement(n1, n2) {
