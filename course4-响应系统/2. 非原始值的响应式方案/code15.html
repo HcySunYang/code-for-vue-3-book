@@ -207,7 +207,15 @@ function cleanup(effectFn) {
 const arr = reactive([1, 2, 3, 4, 5])
 
 effect(() => {
-  for (const val of arr.keys()) {
+  /*for (const val of arr.keys()) {
+    console.log(val)
+  }*/
+  // 不能使用 arr.keys() ，该内建方法建立跟踪的是 'keys'，没有建立下标的副作用函数跟踪
+  /*for (const val of arr) {
+    console.log(val)
+  }*/
+  // 或者使用 .values() 方法，该方法将建立下标的副作用函数跟踪
+  for (const val of arr.values()) {
     console.log(val)
   }
 })
